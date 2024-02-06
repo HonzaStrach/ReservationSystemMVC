@@ -1,0 +1,31 @@
+﻿@model RoomType
+
+<!-- The Modal -->
+<div id="NewRoomTypeSection" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+        <header class="w3-container w3-indigo">
+            <span onclick="document.getElementById('NewRoomTypeSection').style.display='none'"
+                  class="w3-button w3-display-topright">&times;</span>
+            <h2>Vytvoření nového typu pokoje</h2>
+        </header>
+        <div class="w3-container">
+            @using (Html.BeginForm("AddRoomType", "Rooms", FormMethod.Post, new { id = "addRoomTypeForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.LabelFor(model => model.Type, new { @class = "w3-text-blue" })
+                @Html.EditorFor(model => model.Type, new { htmlAttributes = new { @class = "w3-input w3-margin-bottom" } })
+                @Html.ValidationMessageFor(model => model.Type, "", new { @class = "w3-text-red" })
+
+                @Html.LabelFor(model => model.Description, new { @class = "w3-text-blue" })
+                @Html.TextAreaFor(model => model.Description, new { @class = "w3-input w3-margin-bottom" })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "w3-text-red" })
+
+                <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right w3-margin-bottom">Vytvořit nový typ pokoje</button>
+            }
+        </div>
+        <footer class="w3-container w3-indigo">
+            <p>Typ pokoje není třeba vyplňovat. Slouží pro vaši vlastní orientaci pro případ, že nabízíte více typů ubytování.</p>
+        </footer>
+    </div>
+</div>

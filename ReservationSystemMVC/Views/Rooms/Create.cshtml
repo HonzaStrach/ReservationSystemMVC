@@ -1,0 +1,74 @@
+﻿@model Room
+
+@{
+    ViewData["Title"] = "Vytvoření nového pokoje";
+}
+
+<div class="w3-container">
+    <div class="w3-container w3-indigo">
+        <h2>Vytvoření nového pokoje</h2>
+    </div>
+
+    @using (Html.BeginForm("Create", "Rooms", FormMethod.Post, new { @class = "w3-container" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <p>
+            @Html.EditorFor(model => model.RoomNumber, new { htmlAttributes = new { @class = "w3-input" } })
+            @Html.LabelFor(model => model.RoomNumber, new { @class = "w3-text-blue" })
+            @Html.ValidationMessageFor(model => model.RoomNumber, "", new { @class = "w3-text-red" })
+        </p>
+
+        <p>
+            @Html.LabelFor(model => model.RoomTypeId, new { @class = "w3-text-blue" })
+            <a href="#" id="AddNewRoomType" class="w3-text-blue w3-right" style="text-decoration:none">Vytvořit nový typ pokoje</a>
+            @Html.DropDownListFor(model => model.RoomTypeId, (SelectList)ViewData["RoomTypeId"], "Vybrat typ pokoje", new { @class = "w3-select w3-border" })
+            @Html.ValidationMessageFor(model => model.RoomTypeId, "", new { @class = "w3-text-red" })
+        </p>
+
+        @await Html.PartialAsync("_AddRoomTypePartial", new RoomType())
+
+        <p>
+            @Html.EditorFor(model => model.MaxOccupancy, new { htmlAttributes = new { @class = "w3-input" } })
+            @Html.LabelFor(model => model.MaxOccupancy, new { @class = "w3-text-blue" })
+            @Html.ValidationMessageFor(model => model.MaxOccupancy, "", new { @class = "w3-text-red" })
+        </p>
+
+        <p>
+            @Html.CheckBoxFor(model => model.ExtraBedAvailable, new { @class = "w3-check" })
+            @Html.LabelFor(model => model.ExtraBedAvailable, new { @class = "w3-text-blue" })
+            @Html.ValidationMessageFor(model => model.ExtraBedAvailable, "", new { @class = "w3-text-red" })
+        </p>
+
+        <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right">Vytvořit nový pokoj</button>
+    }
+
+    <div>
+        <a asp-action="Index">Zpět na seznam pokojů</a>
+    </div>
+
+</div>
+
+@section Head {
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#AddNewRoomType").click(function (e) {
+                e.preventDefault();
+                $("#NewRoomTypeSection").toggle();
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#showAddRoomTypeForm").click(function (e) {
+                e.preventDefault();
+                $("#addRoomTypeForm").toggle();
+            });
+        });
+    </script>
+}
