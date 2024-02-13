@@ -18,6 +18,8 @@ namespace ReservationSystemMVC.Data
 
         public DbSet<ReservationSystemMVC.Models.RoomType> RoomType { get; set; } = default!;
 
+        public DbSet<ReservationSystemMVC.Models.RoomEquipment> RoomEquipment { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -26,6 +28,19 @@ namespace ReservationSystemMVC.Data
                 .HasOne(r => r.RoomType) // Room has one RoomType
                 .WithMany(t => t.Rooms) // RoomType has many Rooms
                 .HasForeignKey(r => r.RoomTypeId); // Foreign key in Room pointing to RoomType
+
+            modelBuilder.Entity<RoomRoomEquipment>()
+                .HasKey(rre => new { rre.RoomId, rre.RoomEquipmentId });
+
+            modelBuilder.Entity<RoomRoomEquipment>()
+                .HasOne(rre => rre.Room)
+                .WithMany(r => r.RoomRoomEquipments)
+                .HasForeignKey(rre => rre.RoomId);
+
+            modelBuilder.Entity<RoomRoomEquipment>()
+                .HasOne(rre => rre.RoomEquipment)
+                .WithMany(re => re.RoomRoomEquipments)
+                .HasForeignKey(rre => rre.RoomEquipmentId);
         }
 
     }

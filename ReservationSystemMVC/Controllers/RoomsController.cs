@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,36 @@ namespace ReservationSystemMVC.Controllers
         public IActionResult Create()
         {
             ViewData["RoomTypeId"] = new SelectList(_context.Set<RoomType>(), "RoomTypeId", "Type");
+            var roomEquipmentIcons = new List<SelectListItem>
+            {
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf540;"), Value = "fa-solid fa-square-parking" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf1eb;"), Value = "fa-solid fa-wifi" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xe51a;"), Value = "fa-solid fa-kitchen-set" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf236;"), Value = "fa-solid fa-bed" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf2cd;"), Value = "fa-solid fa-bath" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf4b8;"), Value = "fa-solid fa-couch" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf562;"), Value = "fa-solid fa-bell-concierge" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf193;"), Value = "fa-solid fa-wheelchair" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf4d8;"), Value = "fa-solid fa-seedling" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf5c5;"), Value = "fa-solid fa-water-ladder" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf2e7;"), Value = "fa-solid fa-utensils" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf004;"), Value = "fa-solid fa-heart" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf52b;"), Value = "fa-solid fa-door-open" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf2b9;"), Value = "fa-regular fa-address-book" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf023;"), Value = "fa-solid fa-lock" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf1ab;"), Value = "fa-solid fa-language" }
+            };
+            ViewData["RoomEquipmentIcon"] = new SelectList(roomEquipmentIcons, "Value", "Text");
+
+            var equipmentColumns = new List<RoomEquipment>[3] { new List<RoomEquipment>(), new List<RoomEquipment>(), new List<RoomEquipment>() }; 
+            var allEquipments = GetEquipmentFromDatabase();
+            int column = 0;
+            foreach (var equipment in allEquipments)
+            {
+                equipmentColumns[column].Add(equipment);
+                column = (column + 1) % 3; // This will cycle through 0, 1, 2
+            }
+            ViewData["RoomEquipmentColumns"] = equipmentColumns;
             return View();
         }
 
@@ -159,6 +190,40 @@ namespace ReservationSystemMVC.Controllers
         private bool RoomExists(int id)
         {
             return _context.Room.Any(e => e.RoomId == id);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddRoomType(RoomType roomType)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(roomType);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, roomTypeId = roomType.RoomTypeId, roomType = roomType.Type });
+            }
+
+            return Json(new { success = false, message = "Zkontrolujte, že jste zadali typ pokoje." });
+        }
+
+        public async Task<IActionResult> AddRoomEquipment(RoomEquipment roomEquipment)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(roomEquipment);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, roomEquipmentId = roomEquipment.RoomEquipmentId, icon = roomEquipment.Icon, name = roomEquipment.Name, isDefault = roomEquipment.IsDefault, description = roomEquipment.Description });
+            }
+
+            return Json(new { success = false, message = "Zkontrolujte, že jste zadali všechny údaje." });
+        }
+
+        private List<RoomEquipment> GetEquipmentFromDatabase()
+        {
+            return _context.RoomEquipment.ToList();// Implement database access logic here
+            // Return a list of Equipments objects
         }
     }
 }

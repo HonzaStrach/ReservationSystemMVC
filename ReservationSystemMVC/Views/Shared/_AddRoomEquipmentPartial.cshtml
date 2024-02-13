@@ -1,0 +1,46 @@
+﻿@model RoomEquipment
+
+<!-- The Modal -->
+<div id="NewRoomEquipmentSection" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+        <header class="w3-container w3-indigo">
+            <span onclick="document.getElementById('NewRoomEquipmentSection').style.display='none'"
+                  class="w3-button w3-display-topright">&times;</span>
+            <h2>Vytvoření nového vybavení pokoje</h2>
+        </header>
+        <div class="w3-container">
+            @using (Html.BeginForm("AddRoomEquipment", "Rooms", FormMethod.Post, new { id = "addRoomEquipmentForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <p>
+                    @Html.LabelFor(model => model.Icon, new { @class = "w3-text-blue" })
+                    @Html.DropDownListFor(model => model.Icon, (SelectList)ViewData["RoomEquipmentIcon"], "", new { @id = "RoomEquipmentIcon", @class = "w3-select w3-border" })
+                    @Html.ValidationMessageFor(model => model.Icon, "", new { @class = "w3-text-red" })
+                </p>
+
+                <p>
+                    @Html.LabelFor(model => model.Name, new { @class = "w3-text-blue" })
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "w3-input w3-margin-bottom" } })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "w3-text-red" })
+                </p>
+
+                <p>
+                    @Html.LabelFor(model => model.IsDefault, new { @class = "w3-text-blue" })
+                    @Html.CheckBoxFor(model => model.IsDefault, new { @class = "w3-check", @title = "Zvolte, zda se toto vybavení přiřaí automaticky ke každému pokoji" })
+                    @Html.ValidationMessageFor(model => model.IsDefault, "", new { @class = "w3-text-red" })
+                </p>
+
+                <p>
+                    @Html.LabelFor(model => model.Description, new { @class = "w3-text-blue" })
+                    @Html.TextAreaFor(model => model.Description, new { @class = "w3-input w3-margin-bottom" })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "w3-text-red" })
+                </p>
+                <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right w3-margin-bottom">Vytvořit nové vybavení pokoje</button>
+            }
+        </div>
+        <footer class="w3-container w3-indigo">
+            <p>Vybavení pokoje dá potenciálnímu klientovi vědět, co může očekávat.</p>
+        </footer>
+    </div>
+</div>
