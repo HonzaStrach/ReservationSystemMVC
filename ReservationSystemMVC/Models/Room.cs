@@ -65,7 +65,7 @@ namespace ReservationSystemMVC.Models
         public string? Description { get; set; }
 
         // Navigation property for many-to-many relationship with Room
-        public List<RoomRoomEquipment> RoomRoomEquipments { get; set; }
+        public List<RoomRoomEquipment>? RoomRoomEquipments { get; set; }
     }
 
     public class RoomRoomEquipment
