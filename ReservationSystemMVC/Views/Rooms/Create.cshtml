@@ -1,7 +1,14 @@
-﻿@model Room
+﻿@using System.Globalization
+@using System.Text.Json
+@model Room
 
 @{
     ViewData["Title"] = "Vytvoření nového pokoje";
+
+    // Data for calendar
+    var monthNamesJson = JsonSerializer.Serialize(CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.Where(m => !string.IsNullOrEmpty(m)).ToArray());
+    var currentYear = DateTime.Now.Year;
+    var currentMonth = DateTime.Now.Month;
 }
 
 <div class="w3-container">
@@ -72,6 +79,21 @@
                             </div>
                         }
                     }
+                </div>
+            </div>
+        </p>
+
+        <p>
+            <button id="CalendarButton" class="w3-button w3-block w3-light-blue w3-left-align w3-hover-light-blue w3-text-white w3-hover-text-white">
+                Nastavení možností ubytování <i id="CalendarArrow" class="fa-solid fa-angles-down"></i>
+            </button>
+
+            <div id="CalendarForm" class="w3-container w3-hide">
+                <div class="w3-row" style="margin-bottom:128px">
+                    @{
+                        await Html.RenderPartialAsync("_CalendarPartial");
+                    }
+                    <p>Sem vytvořit formulář pro zadání ceny</p>
                 </div>
             </div>
         </p>
@@ -222,6 +244,80 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#CalendarButton").click(function (e) {
+                e.preventDefault();
+                $("#CalendarForm").toggleClass("w3-hide w3-show");
+                $("#CalendarArrow").toggleClass("fa-angles-down fa-angles-up");
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            var monthNames = @Html.Raw(monthNamesJson);
+            var currentYear = @currentYear;
+            var currentMonth = @currentMonth; // Assuming this starts with the first month of the displayed 3-month range
+
+            $('#prevMonth').click(function (e) {
+                e.preventDefault();
+                // Move back one month, considering year boundary
+                if (currentMonth === 1) {
+                    currentMonth = 12;
+                    currentYear--;
+                } else {
+                    currentMonth--;
+                }
+                updateButtonLabels();
+            });
+
+            $('#nextMonth').click(function (e) {
+                e.preventDefault();
+                // Move forward one month, considering year boundary
+                if (currentMonth === 12) {
+                    currentMonth = 1;
+                    currentYear++;
+                } else {
+                    currentMonth++;
+                }
+                updateButtonLabels();
+            });
+
+            function updateButtonLabels() {
+                // Calculate previous and next month indices, considering the 3-month display
+                var prevMonthIndex = currentMonth - 1;
+                var nextMonthIndex = currentMonth + 3; // +3 because currentMonth is the start of the 3-month range
+
+                var prevMonthYear = currentYear;
+                var nextMonthYear = currentYear;
+
+                // Adjust for year boundary
+                if (prevMonthIndex < 1) {
+                    prevMonthIndex += 12;
+                    prevMonthYear--;
+                }
+                if (nextMonthIndex > 12) {
+                    nextMonthIndex -= 12;
+                    nextMonthYear++;
+                }
+
+                // Update button labels
+                $('#prevMonth').html("&#8810; " + monthNames[prevMonthIndex - 1] + " " + prevMonthYear);
+                $('#nextMonth').html(monthNames[nextMonthIndex - 1] + " " + nextMonthYear + "&#x226B;");
+
+                // Adjust the visibility of the prevMonth button
+                if (currentYear > @DateTime.Now.Year || (currentYear === @DateTime.Now.Year && currentMonth > @DateTime.Now.Month)) {
+                    $('#prevMonth').removeClass("w3-hide");
+                } else {
+                    $('#prevMonth').addClass("w3-hide");
+                }
+            }
+
+            updateButtonLabels(); // Initial call to set the button labels
         });
     </script>
 }

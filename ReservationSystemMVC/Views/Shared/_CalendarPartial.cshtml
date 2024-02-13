@@ -1,0 +1,56 @@
+﻿@using System.Globalization
+@{
+    var dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
+    if ((int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek == 1)
+    {
+        dayNames = dayNames.Skip(1).Concat(dayNames.Take(1)).ToArray(); // Start with Monday
+    }
+
+    var startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1); // Starting from the current month
+}
+
+<div class="w3-bar">
+    <div id="prevMonth" class="w3-bar-item w3-indigo" style="cursor:pointer;">předchozí měsíc</div>
+    <div id="nextMonth" class="w3-bar-item w3-indigo w3-right" style="cursor:pointer;">následující měsíc</div>
+</div>
+
+<div class="w3-container w3-row">
+    @for (int monthOffset = 0; monthOffset < 3; monthOffset++)
+    {
+        var monthToShow = startDate.AddMonths(monthOffset);
+        <div class="w3-col w3-third">
+            <h6>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(monthToShow.Month) @monthToShow.Year</h6>
+            <table class="w3-table w3-bordered w3-small">
+                <tr>
+                    @foreach (var day in dayNames)
+                    {
+                        <th class="w3-center">@day</th>
+                    }
+                </tr>
+                @{
+                    var currentDay = new DateTime(monthToShow.Year, monthToShow.Month, 1);
+                    while ((int)currentDay.DayOfWeek != (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek)
+                    {
+                        currentDay = currentDay.AddDays(-1);
+                    }
+
+                    while (currentDay.Month == monthToShow.Month || currentDay < new DateTime(monthToShow.Year, monthToShow.Month, 1))
+                    {
+                        <tr>
+                            @for (var i = 0; i < 7; i++)
+                            {
+                                <td class="w3-center">
+                                    @if (currentDay.Month == monthToShow.Month)
+                                    {
+                                        @currentDay.Day
+                                    }
+                                </td>
+                                currentDay = currentDay.AddDays(1);
+                            }
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    }
+</div>
