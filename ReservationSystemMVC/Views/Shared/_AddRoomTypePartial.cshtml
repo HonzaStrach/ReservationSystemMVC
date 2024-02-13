@@ -9,6 +9,9 @@
             <h2>Vytvoření nového typu pokoje</h2>
         </header>
         <div class="w3-container">
+            <!-- Error message container -->
+            <div id="roomTypeErrors" class="w3-text-red"></div>
+
             @using (Html.BeginForm("AddRoomType", "Rooms", FormMethod.Post, new { id = "addRoomTypeForm" }))
             {
                 @Html.AntiForgeryToken()

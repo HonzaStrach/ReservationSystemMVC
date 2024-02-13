@@ -45,15 +45,32 @@
             </button>
 
             <div id="EquipmentSelector" class="w3-container w3-hide">
-                <div class="w3-row" id="myGrid" style="margin-bottom:128px">
-                    @for (int i = 0; i < 3; i++)
+                <div class="w3-row" id="roomEquipmentGrid" style="margin-bottom:128px">
+                    @if (ViewData["RoomEquipmentOffer"] is List<RoomEquipment> roomEquipments)
                     {
-                        <div class="w3-third">
-                            @foreach (var equipment in (ViewData["RoomEquipmentColumns"] as Array))
-                            {
-                                @equipment
-                            }
-                        </div>
+                        int columnCount = 3; // Number of columns
+                        int equipmentPerColumn = (int)Math.Ceiling((double)roomEquipments.Count / columnCount); // Calculate number of equipments per column
+
+                        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
+                        {
+                            <div class="w3-third">
+                                @for (int i = 0; i < equipmentPerColumn; i++)
+                                {
+                                    int equipmentIndex = columnIndex * equipmentPerColumn + i;
+                                    if (equipmentIndex < roomEquipments.Count)
+                                    {
+                                        var equipment = roomEquipments[equipmentIndex];
+                                        var isChecked = equipment.IsDefault ? " checked" : "";
+                                        <div class="w3-margin-bottom w3-tooltip">
+                                            <input type="checkbox" id="@($"Equipment_{equipment.RoomEquipmentId}")" name="SelectedEquipments" value="@equipment.RoomEquipmentId" class="w3-check" @isChecked/>
+                                            &nbsp;<label for="@($"Equipment_{equipment.RoomEquipmentId}")"><i class="@equipment.Icon"></i> @equipment.Name</label>
+                                            <span style="position:absolute;left:0;bottom:2em;width:20em"
+                                                  class="w3-text w3-tag w3-light-blue w3-round-large w3-small w3-animate-opacity">@equipment.Description</span>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
                     }
                 </div>
             </div>
@@ -95,22 +112,37 @@
 
     <script>
         $(document).ready(function () {
-            // Handler for adding a new RoomType
             $("#addRoomTypeForm").submit(function (e) {
                 e.preventDefault();
+                var form = $(this);
+
+                // Clear previous errors
+                $("#roomTypeErrors").empty();
+
                 $.ajax({
-                    url: $(this).attr("action"),
-                    type: "POST",
-                    data: $(this).serialize(),
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
                     success: function (data) {
                         if (data.success) {
-                            // Close the form
+                            // Close the modal and add the new room type to the dropdown
                             $("#NewRoomTypeSection").toggle();
-                            // Add the new RoomType to the RoomTypeId dropdown
                             $("#RoomTypeId").append(new Option(data.roomType, data.roomTypeId, false, true));
                         } else {
-                            alert(data.message)
+                            // Iterate through the error list and display them
+                            if (data.errors && data.errors.length > 0) {
+                                data.errors.forEach(function (error) {
+                                    $("#roomTypeErrors").append($('<div>').text(error));
+                                });
+                            } else {
+                                // Fallback error message
+                                $("#roomTypeErrors").text(data.message);
+                            }
                         }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle server errors or unexpected responses here
+                        console.error("Error during form submission:", error);
                     }
                 });
             });
@@ -138,22 +170,55 @@
 
     <script>
         $(document).ready(function () {
-            // Handler for adding a new RoomType
             $("#addRoomEquipmentForm").submit(function (e) {
                 e.preventDefault();
+                var form = $(this);
+
+                // Clear previous errors
+                $("#roomEquipmentErrors").empty();
+
                 $.ajax({
-                    url: $(this).attr("action"),
-                    type: "POST",
-                    data: $(this).serialize(),
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
                     success: function (data) {
                         if (data.success) {
-                            // Close the form
+                            // Close the modal
                             $("#NewRoomEquipmentSection").toggle();
-                            // Ask GPT to make the code for adding it to the list of equpiments
-                            
+
+                            // Create a new equipment div
+                            var newEquipmentDiv = $('<div>').addClass('w3-margin-bottom w3-tooltip');
+                            var isChecked = data.isDefault ? " checked" : "";
+                            var input = $('<input>').attr({
+                                type: 'checkbox',
+                                id: 'Equipment_' + data.roomEquipmentId,
+                                name: 'SelectedEquipments',
+                                value: data.roomEquipmentId,
+                                class: 'w3-check'
+                            }).prop('checked', data.isDefault);
+
+                            var label = $('<label>').attr('for', 'Equipment_' + data.roomEquipmentId).html('<i class="' + data.icon + '"></i> ' + data.name);
+                            var span = $('<span>').attr({
+                                style: 'position:absolute;left:0;bottom:2em;width:20em',
+                                class: 'w3-text w3-tag w3-light-blue w3-round-large w3-small w3-animate-opacity'
+                            }).text(data.description);
+
+                            newEquipmentDiv.append(input).append(label).append(span);
+
+                            // Find the column with the least number of equipments and add the new equipment
+                            var minColumn = $("#roomEquipmentGrid .w3-third").sort(function (a, b) {
+                                return $(a).children().length - $(b).children().length;
+                            }).first();
+
+                            minColumn.append(newEquipmentDiv);
                         } else {
-                            alert(data.message)
+                            // Handle validation errors or other failures
+                            alert(data.message);
                         }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle server errors or unexpected responses here
+                        console.error("Error during form submission:", error);
                     }
                 });
             });

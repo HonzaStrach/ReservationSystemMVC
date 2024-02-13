@@ -47,7 +47,7 @@ namespace ReservationSystemMVC.Controllers
         }
 
         // GET: Rooms/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             ViewData["RoomTypeId"] = new SelectList(_context.Set<RoomType>(), "RoomTypeId", "Type");
             var roomEquipmentIcons = new List<SelectListItem>
@@ -59,6 +59,7 @@ namespace ReservationSystemMVC.Controllers
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf2cd;"), Value = "fa-solid fa-bath" },
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf4b8;"), Value = "fa-solid fa-couch" },
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf562;"), Value = "fa-solid fa-bell-concierge" },
+                new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf0f3;"), Value = "fa-solid fa-bell" },
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf193;"), Value = "fa-solid fa-wheelchair" },
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf4d8;"), Value = "fa-solid fa-seedling" },
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf5c5;"), Value = "fa-solid fa-water-ladder" },
@@ -69,17 +70,9 @@ namespace ReservationSystemMVC.Controllers
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf023;"), Value = "fa-solid fa-lock" },
                 new SelectListItem { Text = HttpUtility.HtmlDecode("&#xf1ab;"), Value = "fa-solid fa-language" }
             };
-            ViewData["RoomEquipmentIcon"] = new SelectList(roomEquipmentIcons, "Value", "Text");
+            ViewData["RoomEquipmentIcon"] = new SelectList(roomEquipmentIcons, "Value", "Text"); // Icons for the Select Options
 
-            var equipmentColumns = new List<RoomEquipment>[3] { new List<RoomEquipment>(), new List<RoomEquipment>(), new List<RoomEquipment>() }; 
-            var allEquipments = GetEquipmentFromDatabase();
-            int column = 0;
-            foreach (var equipment in allEquipments)
-            {
-                equipmentColumns[column].Add(equipment);
-                column = (column + 1) % 3; // This will cycle through 0, 1, 2
-            }
-            ViewData["RoomEquipmentColumns"] = equipmentColumns;
+            ViewData["RoomEquipmentOffer"] = await _context.RoomEquipment.ToListAsync(); // List of the available Equipments to choose from
             return View();
         }
 
@@ -200,11 +193,13 @@ namespace ReservationSystemMVC.Controllers
             {
                 _context.Add(roomType);
                 await _context.SaveChangesAsync();
-
                 return Json(new { success = true, roomTypeId = roomType.RoomTypeId, roomType = roomType.Type });
             }
-
-            return Json(new { success = false, message = "Zkontrolujte, že jste zadali typ pokoje." });
+            else
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { success = false, errors = errors });
+            }
         }
 
         public async Task<IActionResult> AddRoomEquipment(RoomEquipment roomEquipment)
@@ -216,8 +211,11 @@ namespace ReservationSystemMVC.Controllers
 
                 return Json(new { success = true, roomEquipmentId = roomEquipment.RoomEquipmentId, icon = roomEquipment.Icon, name = roomEquipment.Name, isDefault = roomEquipment.IsDefault, description = roomEquipment.Description });
             }
-
-            return Json(new { success = false, message = "Zkontrolujte, že jste zadali všechny údaje." });
+            else
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { success = false, errors = errors });
+            }
         }
 
         private List<RoomEquipment> GetEquipmentFromDatabase()
