@@ -1,0 +1,38 @@
+﻿@model RoomRateRebate
+
+<!-- The Modal -->
+<div id="NewRoomRateRebateSection" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+        <header class="w3-container w3-indigo">
+            <span onclick="document.getElementById('NewRoomRateRebateSection').style.display='none'"
+                  class="w3-button w3-display-topright">&times;</span>
+            <h2>Vytvoření nového typu slevy dle délky ubytování</h2>
+        </header>
+        <div class="w3-container">
+            <!-- Error message container -->
+            <div id="roomRebateErrors" class="w3-text-red"></div>
+
+            @using (Html.BeginForm("AddRoomRateRebate", "Rooms", FormMethod.Post, new { id = "addRoomRateRebateForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <p>
+                    @Html.LabelFor(model => model.RateRebate, new { @class = "w3-text-blue" })
+                    @Html.EditorFor(model => model.RateRebate, new { htmlAttributes = new { type = "number", min = "1", max = "100", step = "1", @class = "w3-input w3-margin-bottom" } })
+                    @Html.ValidationMessageFor(model => model.RateRebate, "", new { @class = "w3-text-red" })
+                </p>
+
+                <p>
+                    @Html.LabelFor(model => model.MinNightStay, new { @class = "w3-text-blue" })
+                    @Html.EditorFor(model => model.MinNightStay, new { htmlAttributes = new { @class = "w3-input w3-margin-bottom" } })
+                    @Html.ValidationMessageFor(model => model.MinNightStay, "", new { @class = "w3-text-red" })
+                </p>
+
+                <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right w3-margin-bottom">Vytvořit nový typ slevy</button>
+            }
+        </div>
+        <footer class="w3-container w3-indigo">
+            <p>Chcete-li nabídnout za ubytování slevu na pobyt za noc na základě celkového počtu nocí, zadejte sem požadované údaje.</p>
+        </footer>
+    </div>
+</div>

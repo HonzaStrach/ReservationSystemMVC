@@ -1,0 +1,27 @@
+﻿@model ReservationSystemMVC.Models.RoomType
+
+@{
+    ViewData["Title"] = "Detaily typu pokoje";
+}
+
+<h1>Detaily typu pokoje</h1>
+
+<div class="w3-container">
+    <div class="w3-row">
+        <div class="w3-col l3" style="font-weight:bold">
+            Typ pokoje
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Type)
+        </div>
+    </div>
+    <div class="w3-row w3-margin-bottom">
+        <div class="w3-col l3" style="font-weight:bold">
+            @Html.DisplayNameFor(model => model.Description)
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Description)
+        </div>
+    </div>
+    <a asp-action="Index">Zpět na přehled typů pokojů</a>
+</div>

@@ -14,7 +14,7 @@
     <div id="nextMonth" class="w3-bar-item w3-indigo w3-right" style="cursor:pointer;">následující měsíc</div>
 </div>
 
-<div class="w3-container w3-row">
+<div id="calendarView" class="w3-container w3-row" style="margin-bottom:5em;">
     @for (int monthOffset = 0; monthOffset < 3; monthOffset++)
     {
         var monthToShow = startDate.AddMonths(monthOffset);
@@ -39,7 +39,7 @@
                         <tr>
                             @for (var i = 0; i < 7; i++)
                             {
-                                <td class="w3-center">
+                                <td class="w3-center day-cell" data-date="@currentDay.ToString("yyyy-MM-dd")">
                                     @if (currentDay.Month == monthToShow.Month)
                                     {
                                         @currentDay.Day
@@ -53,4 +53,5 @@
             </table>
         </div>
     }
+    <div class="w3-center">Pokud v kalendáři nevyberete žádné datum, následující údaje se budou vztahovat na kterýkoli den.</div>
 </div>

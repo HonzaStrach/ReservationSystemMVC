@@ -1,0 +1,19 @@
+﻿@model ReservationSystemMVC.Models.RoomRate
+
+<p>
+  @Html.LabelFor(model => model.NightRate, new { @class = "w3-text-blue" })
+  @Html.EditorFor(model => model.NightRate, new { htmlAttributes = new { type = "number", min = "0", max = "2500", step = "1", @class = "w3-input" } })
+  @Html.ValidationMessageFor(model => model.NightRate, "", new { @class = "w3-text-red" })
+</p>
+
+<p>
+    @Html.LabelFor(model => model.ExtraBedRate, new { @class = "w3-text-blue" })
+    @Html.EditorFor(model => model.ExtraBedRate, new { htmlAttributes = new { type = "number", min = "0", max = "2500", step = "1", @class = "w3-input" } })
+    @Html.ValidationMessageFor(model => model.ExtraBedRate, "", new { @class = "w3-text-red" })
+</p>
+
+<p>
+    @Html.LabelFor(model => model.MinNights, new { @class = "w3-text-blue" })
+    @Html.EditorFor(model => model.MinNights, new { htmlAttributes = new { type = "number", min = "0", max = "365", step = "1", @class = "w3-input" } })
+    @Html.ValidationMessageFor(model => model.MinNights, "", new { @class = "w3-text-red" })
+</p>

@@ -1,0 +1,49 @@
+﻿@model ReservationSystemMVC.Models.RoomEquipment
+
+@{
+    ViewData["Title"] = "Vytvoření nového typu vybavení pokojů";
+}
+
+<h1>Vytvoření nového typu vybavení pokojů</h1>
+
+<div class="w3-container">
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <p>
+            <label asp-for="Icon" class="w3-text-blue"></label>
+            @Html.DropDownListFor(model => model.Icon, (SelectList)ViewData["RoomEquipmentIcon"], "", new { @id = "RoomEquipmentIcon", @class = "w3-select w3-border" })
+            <span asp-validation-for="Icon" class="text-danger"></span>
+        </p>
+        <p>
+            <label asp-for="Name" class="w3-text-blue"></label>
+            <input asp-for="Name" class="w3-input w3-margin-bottom" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </p>
+        <p>
+            <label class="w3-text-blue">
+                <input class="w3-check" title="Zvolte, zda se toto vybavení přiřadí automaticky ke každému pokoji" asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
+            </label>
+        </p>
+        <p>
+            <label asp-for="Description" class="w3-text-blue"></label>
+            <input asp-for="Description" class="w3-input w3-margin-bottom" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </p>
+        <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right w3-margin-bottom">Vytvořit nové vybavení pokojů</button>
+        </form>
+    <a asp-action="Index">Zpět na seznam vybavení</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+@section Head {
+    <script src="https://kit.fontawesome.com/3aeded1a52.js" crossorigin="anonymous"></script>
+    <style>
+        select#RoomEquipmentIcon {
+            font-family: 'FontAwesome';
+            font-size: 1.5em;
+        }
+    </style>
+}

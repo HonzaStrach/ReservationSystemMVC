@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservationSystemMVC.Data;
 
@@ -11,9 +12,11 @@ using ReservationSystemMVC.Data;
 namespace ReservationSystemMVC.Migrations
 {
     [DbContext(typeof(ReservationSystemMVCContext))]
-    partial class ReservationSystemMVCContextModelSnapshot : ModelSnapshot
+    [Migration("20240217193207_RoomRateRebatesCorrected")]
+    partial class RoomRateRebatesCorrected
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,17 +88,17 @@ namespace ReservationSystemMVC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoomRateId"));
 
-                    b.Property<DateTime?>("DateApplied")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ExtraBedRate")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("ExtraBedRate")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("MinNights")
                         .HasColumnType("int");
 
-                    b.Property<int>("NightRate")
-                        .HasColumnType("int");
+                    b.Property<decimal>("NightRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RebateForLengthOfStay")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");

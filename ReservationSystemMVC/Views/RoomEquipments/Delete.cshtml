@@ -1,0 +1,46 @@
+﻿@model ReservationSystemMVC.Models.RoomEquipment
+
+@{
+    ViewData["Title"] = "Smazání vybavení pokojů";
+}
+
+<h1>Smazání vybavení pokojů</h1>
+
+<h3>Skutečně chcete smazat typ pokoje?</h3>
+<p>Tato akce je nevratná. Nesmažete tím pokoj samotný ani informace o něm. Pouze ztratíte vazbu na vybavení pokoje.</p>
+<div class="w3-container">
+    <div class="w3-row">
+        <div class="w3-col l3">
+            <i class="@Model.Icon"></i>
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Name)
+        </div>
+    </div>
+    <div class="w3-row">
+        <div class="w3-col l3" style="font-weight:bold">
+            @Html.DisplayNameFor(model => model.IsDefault)
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.IsDefault)
+        </div>
+    </div>
+    <div class="w3-row w3-margin-bottom">
+        <div class="w3-col l3" style="font-weight:bold">
+            @Html.DisplayNameFor(model => model.Description)
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Description)
+        </div>
+    </div>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="RoomEquipmentId" />
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a asp-action="Index">Zpět na seznam vybavení pokojů</a>
+    </form>
+</div>
+
+@section Head {
+    <script src="https://kit.fontawesome.com/3aeded1a52.js" crossorigin="anonymous"></script>
+}

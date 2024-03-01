@@ -1,0 +1,34 @@
+﻿@model ReservationSystemMVC.Models.RoomType
+
+@{
+    ViewData["Title"] = "Smazání typu pokoje";
+}
+
+<h1>Smazání typu pokoje</h1>
+
+<h3>Skutečně chcete smazat typ pokoje?</h3>
+<p>Tato akce je nevratná. Nesmažete tím pokoj samotný ani informace o něm. Pouze ztratíte vazbu na typ pokoje.</p>
+<div class="w3-container">
+    <div class="w3-row">
+        <div class="w3-col l3" style="font-weight:bold">
+            Typ pokoje
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Type)
+        </div>
+    </div>
+    <div class="w3-row w3-margin-bottom">
+        <div class="w3-col l3" style="font-weight:bold">
+            @Html.DisplayNameFor(model => model.Description)
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Description)
+        </div>
+    </div>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="RoomTypeId" />
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a asp-action="Index">Zpět na seznam typů pokojů</a>
+    </form>
+</div>

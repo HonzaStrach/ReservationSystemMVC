@@ -1,0 +1,37 @@
+﻿@model ReservationSystemMVC.Models.RoomType
+
+@{
+    ViewData["Title"] = "Upravení typu pokoje";
+}
+
+<h1>Upravení typu pokoje</h1>
+
+<div class="w3-container">
+    @using (Html.BeginForm("Edit", "RoomTypes", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <p>
+            @Html.LabelFor(model => model.Type, new { @class = "w3-text-blue" })
+            @Html.EditorFor(model => model.Type, new { htmlAttributes = new { @class = "w3-input w3-margin-bottom" } })
+            @Html.ValidationMessageFor(model => model.Type, "", new { @class = "w3-text-red" })
+        </p>
+
+        <p>
+            @Html.LabelFor(model => model.Description, new { @class = "w3-text-blue" })
+            @Html.TextAreaFor(model => model.Description, new { @class = "w3-input w3-margin-bottom" })
+            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "w3-text-red" })
+        </p>
+
+        @Html.HiddenFor(model => model.RoomTypeId)
+        <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right w3-margin-bottom">Upravit typ pokoje</button>
+    }
+    <p>Typ pokoje není třeba vyplňovat. Slouží pro vaši vlastní orientaci pro případ, že nabízíte více typů ubytování.</p>
+    <a asp-action="Index">Zpět na přehled typů pokojů</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

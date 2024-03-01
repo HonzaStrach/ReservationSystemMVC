@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservationSystemMVC.Data;
 
@@ -11,9 +12,11 @@ using ReservationSystemMVC.Data;
 namespace ReservationSystemMVC.Migrations
 {
     [DbContext(typeof(ReservationSystemMVCContext))]
-    partial class ReservationSystemMVCContextModelSnapshot : ModelSnapshot
+    [Migration("20240217174834_RoomRates")]
+    partial class RoomRates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,17 +88,17 @@ namespace ReservationSystemMVC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoomRateId"));
 
-                    b.Property<DateTime?>("DateApplied")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ExtraBedRate")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("ExtraBedRate")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("MinNights")
                         .HasColumnType("int");
 
-                    b.Property<int>("NightRate")
-                        .HasColumnType("int");
+                    b.Property<decimal>("NightRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RebateForLengthOfStay")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
@@ -105,40 +108,6 @@ namespace ReservationSystemMVC.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("RoomRate");
-                });
-
-            modelBuilder.Entity("ReservationSystemMVC.Models.RoomRateRebate", b =>
-                {
-                    b.Property<int>("RoomRateRebateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoomRateRebateId"));
-
-                    b.Property<int>("MinNightStay")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("RateRebate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("RoomRateRebateId");
-
-                    b.ToTable("RoomRateRebate");
-                });
-
-            modelBuilder.Entity("ReservationSystemMVC.Models.RoomRateRoomRateRebate", b =>
-                {
-                    b.Property<int>("RoomRateId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoomRateRebateId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RoomRateId", "RoomRateRebateId");
-
-                    b.HasIndex("RoomRateRebateId");
-
-                    b.ToTable("RoomRateRoomRateRebates");
                 });
 
             modelBuilder.Entity("ReservationSystemMVC.Models.RoomRoomEquipment", b =>
@@ -196,25 +165,6 @@ namespace ReservationSystemMVC.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("ReservationSystemMVC.Models.RoomRateRoomRateRebate", b =>
-                {
-                    b.HasOne("ReservationSystemMVC.Models.RoomRate", "RoomRate")
-                        .WithMany("RoomRateRoomRateRebates")
-                        .HasForeignKey("RoomRateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReservationSystemMVC.Models.RoomRateRebate", "RoomRateRebate")
-                        .WithMany("RoomRateRoomRateRebates")
-                        .HasForeignKey("RoomRateRebateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RoomRate");
-
-                    b.Navigation("RoomRateRebate");
-                });
-
             modelBuilder.Entity("ReservationSystemMVC.Models.RoomRoomEquipment", b =>
                 {
                     b.HasOne("ReservationSystemMVC.Models.RoomEquipment", "RoomEquipment")
@@ -244,16 +194,6 @@ namespace ReservationSystemMVC.Migrations
             modelBuilder.Entity("ReservationSystemMVC.Models.RoomEquipment", b =>
                 {
                     b.Navigation("RoomRoomEquipments");
-                });
-
-            modelBuilder.Entity("ReservationSystemMVC.Models.RoomRate", b =>
-                {
-                    b.Navigation("RoomRateRoomRateRebates");
-                });
-
-            modelBuilder.Entity("ReservationSystemMVC.Models.RoomRateRebate", b =>
-                {
-                    b.Navigation("RoomRateRoomRateRebates");
                 });
 
             modelBuilder.Entity("ReservationSystemMVC.Models.RoomType", b =>

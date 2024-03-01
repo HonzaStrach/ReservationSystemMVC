@@ -30,7 +30,7 @@
 
                 <p>
                     @Html.LabelFor(model => model.IsDefault, new { @class = "w3-text-blue" })
-                    @Html.CheckBoxFor(model => model.IsDefault, new { @class = "w3-check", @title = "Zvolte, zda se toto vybavení přiřaí automaticky ke každému pokoji" })
+                    @Html.CheckBoxFor(model => model.IsDefault, new { @class = "w3-check", @title = "Zvolte, zda se toto vybavení přiřadí automaticky ke každému pokoji" })
                     @Html.ValidationMessageFor(model => model.IsDefault, "", new { @class = "w3-text-red" })
                 </p>
 

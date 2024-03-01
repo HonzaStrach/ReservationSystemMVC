@@ -4,7 +4,11 @@ using System.ComponentModel;
 namespace ReservationSystemMVC.Models
 {
     public class Room
-    {
+    {   
+        public Room()
+        {
+            RoomRoomEquipments = new List<RoomRoomEquipment>();
+        }
         public int RoomId { get; set; }
 
         [Required(ErrorMessage = "Číslo pokoje je třeba zadat")]
@@ -27,7 +31,10 @@ namespace ReservationSystemMVC.Models
         public RoomType? RoomType { get; set; }
 
         // Navigation property for many-to-many relationship with RoomEquipment
-        public List<RoomRoomEquipment> RoomRoomEquipments { get; set; }
+        public List<RoomRoomEquipment>? RoomRoomEquipments { get; set; }
+
+        // Navigation property for RoomRate
+        public ICollection<RoomRate> RoomRates { get; set; } = new List<RoomRate>();
     }
 
     public class RoomType

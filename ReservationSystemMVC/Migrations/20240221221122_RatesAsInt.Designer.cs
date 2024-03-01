@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservationSystemMVC.Data;
 
@@ -11,9 +12,11 @@ using ReservationSystemMVC.Data;
 namespace ReservationSystemMVC.Migrations
 {
     [DbContext(typeof(ReservationSystemMVCContext))]
-    partial class ReservationSystemMVCContextModelSnapshot : ModelSnapshot
+    [Migration("20240221221122_RatesAsInt")]
+    partial class RatesAsInt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

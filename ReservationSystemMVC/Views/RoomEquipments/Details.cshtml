@@ -1,0 +1,39 @@
+﻿@model ReservationSystemMVC.Models.RoomEquipment
+
+@{
+    ViewData["Title"] = "Podrobnosti vybavení pokojů";
+}
+
+<h1>Podrobnosti vybavení pokojů</h1>
+
+<div class="w3-container">
+    <div class="w3-row">
+        <div class="w3-col l3">
+            <i class="@Model.Icon"></i>
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Name)
+        </div>
+    </div>
+    <div class="w3-row">
+        <div class="w3-col l3" style="font-weight:bold">
+            @Html.DisplayNameFor(model => model.IsDefault)
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.IsDefault)
+        </div>
+    </div>
+    <div class="w3-row w3-margin-bottom">
+        <div class="w3-col l3" style="font-weight:bold">
+            @Html.DisplayNameFor(model => model.Description)
+        </div>
+        <div class="w3-col l9">
+            @Html.DisplayFor(model => model.Description)
+        </div>
+    </div>
+    <a asp-action="Index">Zpět na seznam vybavení</a>
+</div>
+
+@section Head {
+    <script src="https://kit.fontawesome.com/3aeded1a52.js" crossorigin="anonymous"></script>
+}

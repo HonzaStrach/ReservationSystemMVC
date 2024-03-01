@@ -20,6 +20,12 @@ namespace ReservationSystemMVC.Data
 
         public DbSet<ReservationSystemMVC.Models.RoomEquipment> RoomEquipment { get; set; } = default!;
 
+        public DbSet<ReservationSystemMVC.Models.RoomRate> RoomRate { get; set; } = default!;
+
+        public DbSet<ReservationSystemMVC.Models.RoomRateRebate> RoomRateRebate { get; set; } = default!;
+        public DbSet<RoomRateRoomRateRebate> RoomRateRoomRateRebates { get; set; } = default!;
+        public DbSet<RoomRoomEquipment> RoomRoomEquipments { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -41,6 +47,20 @@ namespace ReservationSystemMVC.Data
                 .HasOne(rre => rre.RoomEquipment)
                 .WithMany(re => re.RoomRoomEquipments)
                 .HasForeignKey(rre => rre.RoomEquipmentId);
+
+            // Configure many-to-many relationship between RoomRate and RoomRateRebate
+            modelBuilder.Entity<RoomRateRoomRateRebate>()
+                .HasKey(rrrr => new { rrrr.RoomRateId, rrrr.RoomRateRebateId });
+
+            modelBuilder.Entity<RoomRateRoomRateRebate>()
+                .HasOne(rrrr => rrrr.RoomRate)
+                .WithMany(rr => rr.RoomRateRoomRateRebates)
+                .HasForeignKey(rrrr => rrrr.RoomRateId);
+
+            modelBuilder.Entity<RoomRateRoomRateRebate>()
+                .HasOne(rrrr => rrrr.RoomRateRebate)
+                .WithMany(rrr => rrr.RoomRateRoomRateRebates)
+                .HasForeignKey(rrrr => rrrr.RoomRateRebateId);
         }
 
     }
