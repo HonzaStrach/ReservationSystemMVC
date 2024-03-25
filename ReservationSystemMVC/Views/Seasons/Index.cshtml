@@ -1,0 +1,54 @@
+﻿@model IEnumerable<ReservationSystemMVC.Models.Season>
+
+@{
+    ViewData["Title"] = "Přehled sezón";
+}
+
+<h1>Přehled sezón</h1>
+
+<p>
+    <a asp-action="Create">Vytvořit novou sezónu</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>Období</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Room)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @if(item.SeasonDates.Any())
+                {
+                        var startDate = item.SeasonDates.Min(date => date.DateApplied);
+                        var endDate = item.SeasonDates.Max(date => date.DateApplied);
+                        @($"{startDate.ToShortDateString()} - {endDate.ToShortDateString()}")
+                    }
+                    else
+                    {
+                        @:neurčeno
+                    }
+                </td>
+            <td>
+                @(item.Room?.RoomNumber ?? "žádný")
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.SeasonId">Upravit</a> |
+                <a asp-action="Details" asp-route-id="@item.SeasonId">Detaily</a> |
+                <a asp-action="Delete" asp-route-id="@item.SeasonId">Smazat</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

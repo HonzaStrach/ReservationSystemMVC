@@ -15,16 +15,14 @@ namespace ReservationSystemMVC.Data
         }
 
         public DbSet<ReservationSystemMVC.Models.Room> Room { get; set; } = default!;
-
         public DbSet<ReservationSystemMVC.Models.RoomType> RoomType { get; set; } = default!;
-
         public DbSet<ReservationSystemMVC.Models.RoomEquipment> RoomEquipment { get; set; } = default!;
-
         public DbSet<ReservationSystemMVC.Models.RoomRate> RoomRate { get; set; } = default!;
-
         public DbSet<ReservationSystemMVC.Models.RoomRateRebate> RoomRateRebate { get; set; } = default!;
         public DbSet<RoomRateRoomRateRebate> RoomRateRoomRateRebates { get; set; } = default!;
         public DbSet<RoomRoomEquipment> RoomRoomEquipments { get; set; } = default!;
+        public DbSet<Season> Seasons { get; set; } = default!;
+        public DbSet<SeasonDate> SeasonDates { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

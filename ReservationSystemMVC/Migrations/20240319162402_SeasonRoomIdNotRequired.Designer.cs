@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservationSystemMVC.Data;
 
@@ -11,9 +12,11 @@ using ReservationSystemMVC.Data;
 namespace ReservationSystemMVC.Migrations
 {
     [DbContext(typeof(ReservationSystemMVCContext))]
-    partial class ReservationSystemMVCContextModelSnapshot : ModelSnapshot
+    [Migration("20240319162402_SeasonRoomIdNotRequired")]
+    partial class SeasonRoomIdNotRequired
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,7 +100,7 @@ namespace ReservationSystemMVC.Migrations
                     b.Property<int>("NightRate")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RoomId")
+                    b.Property<int>("RoomId")
                         .HasColumnType("int");
 
                     b.Property<int>("SeasonId")
@@ -237,7 +240,9 @@ namespace ReservationSystemMVC.Migrations
                 {
                     b.HasOne("ReservationSystemMVC.Models.Room", "Room")
                         .WithMany("RoomRates")
-                        .HasForeignKey("RoomId");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ReservationSystemMVC.Models.Season", "Season")
                         .WithMany("RoomRates")

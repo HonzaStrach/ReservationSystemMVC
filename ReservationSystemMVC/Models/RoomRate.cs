@@ -13,6 +13,7 @@ namespace ReservationSystemMVC.Models
 
         [Required]
         [DisplayName("Cena za noc")]
+        [Range(1, int.MaxValue, ErrorMessage = "Cena za noc musí být větší než 0.")]
         public int NightRate { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Minimální počet nocí musí být alespoň 1.")]
@@ -24,9 +25,13 @@ namespace ReservationSystemMVC.Models
 
         public DateTime? DateApplied { get; set; }
 
-        // Foreign key to Room
-        public int RoomId { get; set; }
-        public Room Room { get; set; }
+        // Foreign key to Season
+        public int SeasonId { get; set; }
+        public Season Season { get; set; }
+
+        // Foreign key to Room - delete when finished moving from RoomsController to SeasonsController
+        public int? RoomId { get; set; }
+        public Room? Room { get; set; }
 
         // Navigation property for the many-to-many relationship
         public List<RoomRateRoomRateRebate> RoomRateRoomRateRebates { get; set; }

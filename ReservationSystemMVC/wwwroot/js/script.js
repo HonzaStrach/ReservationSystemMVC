@@ -23,7 +23,7 @@
                     $("#NewRoomTypeSection").toggle();
                     $("#RoomTypeId").append(new Option(data.roomType, data.roomTypeId, false, true));
                 } else {
-
+                    // Iterate through the error list and display them
                 }
             },
         });

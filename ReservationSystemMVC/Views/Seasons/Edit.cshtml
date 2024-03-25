@@ -1,0 +1,508 @@
+﻿@using System.Globalization
+@using System.Text.Json
+@model Season
+
+@{
+    ViewData["Title"] = "Upravení sezóny";
+
+    // Data for calendar
+    var monthNamesJson = JsonSerializer.Serialize(CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.Where(m => !string.IsNullOrEmpty(m)).ToArray());
+    var currentYear = DateTime.Now.Year;
+    var currentMonth = DateTime.Now.Month;
+}
+
+<div class="w3-container">
+    <div class="w3-container w3-indigo">
+        <h2>Upravení sezóny</h2>
+    </div>
+
+    @using (Html.BeginForm("Edit", "Seasons", FormMethod.Post, new { @class = "w3-container" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.SeasonId)
+
+        <p>
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "w3-input" } })
+            @Html.LabelFor(model => model.Name, new { @class = "w3-text-blue" })
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "w3-text-red" })
+        </p>
+        <p>
+            @Html.LabelFor(model => model.RoomId, new { @class = "w3-text-blue" })
+            @Html.DropDownListFor(model => model.RoomId, (SelectList)ViewBag.RoomId, "Vyberte pokoj", new { @class = "w3-select w3-border" })
+        </p>
+
+        <p>
+            <span class="w3-text-blue">Nastavení možností ubytování</span>
+
+            <div id="CalendarForm">
+                <div class="w3-row" style="margin-bottom:128px">
+                    @{
+                        await Html.RenderPartialAsync("_CalendarPartial");
+
+                        await Html.RenderPartialAsync("_RoomRatesPartial", new RoomRate());
+                    }
+                    <label class="w3-text-blue" for="RebateForLenghtOfTheStay">Sleva za danou délku pobytu</label>
+                    <a href="#roomRateRebate" id="AddNewRateRebate" class="w3-text-blue" style="text-decoration:none">Vytvořit nový typ slevy</a>
+                    <div class="w3-row" id="roomRateRebate" style="margin-bottom:128px">
+                        @if (ViewData["RoomRateRebateOffer"] is List<RoomRateRebate> roomRateRebates)
+                        {
+                            @foreach (var rebate in roomRateRebates)
+                            {
+                                <div class="w3-margin-bottom">
+                                    <input type="checkbox" id="@($"Rebate_{rebate.RoomRateRebateId}")" name="SelectedRebates" value="@rebate.RoomRateRebateId" class="w3-check" />
+                                    <label for="@($"Rebate_{rebate.RoomRateRebateId}")">
+                                        Sleva @rebate.RateRebate% (minimálně @rebate.MinNightStay nocí)
+                                    </label>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div id="selectedDatesDisplay" class="w3-container w3-margin-top">
+                        <h4>Selected Dates:</h4>
+                        <ul id="selectedDatesList"></ul>
+                    </div>
+
+                </div>
+            </div>
+        </p>
+        <input type="hidden" id="SelectedDatesHidden" name="SelectedDatesJson" />
+
+        <button type="submit" class="w3-button w3-indigo w3-hover-blue w3-right">Upravit sezónu</button>
+    }
+
+    <div>
+        <a asp-action="Index">Zpět na seznam sezón</a>
+    </div>
+
+</div>
+
+@await Html.PartialAsync("_RateRebatePartial", new RoomRateRebate())
+
+@section Head {
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/3aeded1a52.js" crossorigin="anonymous"></script>
+    <style>
+        select#RoomEquipmentIcon {
+            font-family: 'FontAwesome';
+            font-size: 1.5em;
+        }
+
+        .day-cell {
+            cursor: pointer;
+        }
+
+            .day-cell.selected {
+                background-color: #4CAF50; /* Green background for selected days */
+                color: white; /* White text for better contrast */
+            }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/script.js" defer></script>
+
+    <script>
+        // Adding the new room type to the database
+        $(document).ready(function () {
+            $("#addRoomTypeForm").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+                // Clear previous errors
+                $("#roomTypeErrors").empty();
+
+                $.ajax({
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            // Close the modal and add the new room type to the dropdown
+                            $("#NewRoomTypeSection").toggle();
+                            $("#RoomTypeId").append(new Option(data.roomType, data.roomTypeId, false, true));
+                        } else {
+                            // Iterate through the error list and display them
+                            if (data.errors && data.errors.length > 0) {
+                                data.errors.forEach(function (error) {
+                                    $("#roomTypeErrors").append($('<div>').text(error));
+                                });
+                            } else {
+                                // Fallback error message
+                                $("#roomTypeErrors").text(data.message);
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle server errors or unexpected responses here
+                        console.error("Error during form submission:", error);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#EquipmentButton").click(function (e) {
+                e.preventDefault();
+                $("#EquipmentSelector").toggleClass("w3-hide w3-show");
+                $("#EquipmentArrow").toggleClass("fa-angles-down fa-angles-up");
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#AddNewRoomEquipment").click(function (e) {
+                e.preventDefault();
+                $("#NewRoomEquipmentSection").toggle();
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#addRoomEquipmentForm").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+                // Clear previous errors
+                $("#roomEquipmentErrors").empty();
+
+                $.ajax({
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            // Close the modal
+                            $("#NewRoomEquipmentSection").toggle();
+
+                            // Create a new equipment div
+                            var newEquipmentDiv = $('<div>').addClass('w3-margin-bottom w3-tooltip');
+                            var isChecked = data.isDefault ? " checked" : "";
+                            var input = $('<input>').attr({
+                                type: 'checkbox',
+                                id: 'Equipment_' + data.roomEquipmentId,
+                                name: 'SelectedEquipments',
+                                value: data.roomEquipmentId,
+                                class: 'w3-check'
+                            }).prop('checked', data.isDefault);
+
+                            var label = $('<label>').attr('for', 'Equipment_' + data.roomEquipmentId).html('<i class="' + data.icon + '"></i> ' + data.name);
+                            var span = $('<span>').attr({
+                                style: 'position:absolute;left:0;bottom:2em;width:20em',
+                                class: 'w3-text w3-tag w3-light-blue w3-round-large w3-small w3-animate-opacity'
+                            }).text(data.description);
+
+                            newEquipmentDiv.append(input).append(label).append(span);
+
+                            // Find the column with the least number of equipments and add the new equipment
+                            var minColumn = $("#roomEquipmentGrid .w3-third").sort(function (a, b) {
+                                return $(a).children().length - $(b).children().length;
+                            }).first();
+
+                            minColumn.append(newEquipmentDiv);
+                        } else {
+                            // Handle validation errors or other failures
+                            alert(data.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle server errors or unexpected responses here
+                        console.error("Error during form submission:", error);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Calendar functions
+        $(document).ready(function () {
+            // Toggle display calendar
+            $("#CalendarButton").click(function (e) {
+                e.preventDefault();
+                $("#CalendarForm").toggleClass("w3-hide w3show");
+                $("#CalendarArrow").toggleClass("fa-angles-down fa-angles-up");
+            });
+
+            // Populate calendar with dates
+            var monthNames = @Html.Raw(monthNamesJson);
+            var currentYear = @currentYear;
+            var currentMonth = @currentMonth;
+
+            // Moving months and changing the button labels
+            $('#prevMonth').click(function (e) {
+                e.preventDefault();
+                // Move back one month, considering year boundary
+                if (currentMonth === 1) {
+                    currentMonth = 12;
+                    currentYear--;
+                } else {
+                    currentMonth--;
+                }
+
+                updateButtonLabels(); // Change the months displayed on the buttons
+                updateMonthTables(currentYear, currentMonth); // Change the calendars displayed
+            });
+            $('#nextMonth').click(function (e) {
+                e.preventDefault();
+                // Move forward one month, considering year boundary
+                if (currentMonth === 12) {
+                    currentMonth = 1;
+                    currentYear++;
+                } else {
+                    currentMonth++;
+                }
+                updateButtonLabels(); // Change the months displayed on the buttons
+                updateMonthTables(currentYear, currentMonth); // Change the calendars displayed
+            });
+
+            // Changing the months displayed on the buttons
+            function updateButtonLabels() {
+                // Calculate previous and next month indices, considering the 3-month display
+                var prevMonthIndex = currentMonth - 1;
+                var nextMonthIndex = currentMonth + 3;
+
+                var prevMonthYear = currentYear;
+                var nextMonthYear = currentYear;
+
+                // Adjust for year boundary
+                if (prevMonthIndex < 1) {
+                    prevMonthIndex += 12;
+                    prevMonthYear--;
+                }
+                if (nextMonthIndex > 12) {
+                    nextMonthIndex -= 12;
+                    nextMonthYear++;
+                }
+
+                // Update button labels
+                $('#prevMonth').html("&#8810; " + monthNames[prevMonthIndex - 1] + " " + prevMonthYear);
+                $('#nextMonth').html(monthNames[nextMonthIndex - 1] + " " + nextMonthYear + "&#x226B;");
+
+                // Adjust the visibility of the prevMonth button
+                if (currentYear > @DateTime.Now.Year || (currentYear === @DateTime.Now.Year && currentMonth > @DateTime.Now.Month)) {
+                    $('#prevMonth').removeClass("w3-hide");
+                } else {
+                    $('#prevMonth').addClass("w3-hide");
+                }
+            }
+
+            updateButtonLabels(); // Initial call to set the button labels
+
+            function updateMonthTables(currentYear, currentMonth) {
+                var monthNames = @Html.Raw(monthNamesJson);
+                var dayNames = @Html.Raw(JsonSerializer.Serialize(CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames));
+                var firstDayOfWeek = @((int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
+
+                // Adjust day names to start from Monday if the first day of the week is Monday
+                if (firstDayOfWeek == 1) {
+                    dayNames.push(dayNames.shift()); // Move Sunday to the end
+                }
+
+                var htmlContent = '';
+
+                for (var monthOffset = 0; monthOffset < 3; monthOffset++) {
+                    var monthToShow = new Date(currentYear, currentMonth - 1 + monthOffset, 1);
+                    var lastDayOfMonth = new Date(currentYear, currentMonth + monthOffset, 0).getDate();
+
+                    // Adjust the start day of the week to be Monday
+                    var startDayOfWeek = (monthToShow.getDay() + 6) % 7; // This makes Monday (0), Sunday (6)
+                    var endDayOfWeek = (new Date(monthToShow.getFullYear(), monthToShow.getMonth(), lastDayOfMonth).getDay() + 6) % 7;
+
+                    htmlContent += '<div class="w3-col w3-third">';
+                    htmlContent += '<h6>' + monthNames[monthToShow.getMonth()] + ' ' + monthToShow.getFullYear() + '</h6>';
+                    htmlContent += '<table class="w3-table w3-bordered w3-small"><tr>';
+
+                    // Day names header
+                    dayNames.forEach(function (day) {
+                        htmlContent += '<th class="w3-center">' + day + '</th>';
+                    });
+
+                    htmlContent += '</tr><tr>';
+
+                    // Empty cells for days before the start of the month
+                    for (var i = 0; i < startDayOfWeek; i++) {
+                        htmlContent += '<td class="w3-center"></td>';
+                    }
+
+                    // Day cells for the month
+                    for (var day = 1; day <= lastDayOfMonth; day++) {
+                        var dateStr = monthToShow.getFullYear() + '-' + ('0' + (monthToShow.getMonth() + 1)).slice(-2) + '-' + ('0' + day).slice(-2); // Format: yyyy-MM-dd
+                        if ((startDayOfWeek + day - 1) % 7 === 0 && day > 1) {
+                            htmlContent += '</tr><tr>'; // Start a new row each week
+                        }
+                        htmlContent += '<td class="w3-center day-cell" data-date="' + dateStr + '">' + day + '</td>';
+                    }
+
+                    // Empty cells for days after the end of the month
+                    for (var i = endDayOfWeek; i < 6; i++) {
+                        htmlContent += '<td class="w3-center"></td>';
+                    }
+
+                    htmlContent += '</tr></table></div>';
+                }
+
+                // Update the HTML content of the calendar view
+                $('#calendarView').html(htmlContent);
+
+                updateCalendarView();
+            }
+
+
+            var selectedDates = @Html.Raw(Json.Serialize(ViewBag.SelectedDatesForSeason ?? new List<DateTime>()));
+
+            function updateCalendarView() {
+                $('.day-cell').each(function () {
+                    var $cell = $(this);
+                    var cellDate = $cell.data('date');
+                    if (selectedDates.includes(cellDate)) {
+                        $cell.addClass('selected');
+                    } else {
+                        $cell.removeClass('selected');
+                    }
+                });
+
+                // On form submission or when ready to submit
+                function prepareFormData() {
+                    var selectedDatesJson = JSON.stringify(selectedDates); // Serialize the array
+                    document.getElementById('SelectedDatesHidden').value = selectedDatesJson; // Assign to hidden input
+                }
+
+                $('form').submit(function (event) {
+                    prepareFormData();
+                });
+
+                // Contemporary to see whether the day selections work as intended
+                updateSelectedDatesDisplay(); // Update the display of selected dates
+            }
+
+            var firstClickedDate = null;
+
+            $(document).on('click', '.day-cell', function () {
+                var clickedDate = $(this).data('date');
+                var clickedDateStr = clickedDate; // Assuming clickedDate is already in 'yyyy-MM-dd' format
+
+                // Check if the clicked date is already selected
+                var index = selectedDates.indexOf(clickedDateStr);
+                if (index > -1) {
+                    // If the date is already selected, remove it from the selectedDates array
+                    selectedDates.splice(index, 1);
+                } else {
+                    var clickedDateObj = new Date(clickedDateStr);
+
+                    if (firstClickedDate === null) {
+                        // If no date has been clicked yet, set the firstClickedDate
+                        firstClickedDate = clickedDateObj;
+                        // Check if the firstClickedDate is not already in selectedDates before adding
+                        var firstClickedDateStr = firstClickedDate.toISOString().split('T')[0];
+                        if (!selectedDates.includes(firstClickedDateStr)) {
+                            selectedDates.push(firstClickedDateStr); // Add the first clicked date to the selection
+                        }
+                    } else {
+                        // If a first date has already been clicked
+                        if (clickedDateObj > firstClickedDate) {
+                            // If the second clicked date is after the first clicked date, add range
+                            var currentDate = new Date(firstClickedDate);
+                            while (currentDate <= clickedDateObj) {
+                                var currentDateStr = currentDate.toISOString().split('T')[0];
+                                // Push only if the date is not already in selectedDates
+                                if (!selectedDates.includes(currentDateStr)) {
+                                    selectedDates.push(currentDateStr);
+                                }
+                                currentDate.setDate(currentDate.getDate() + 1);
+                            }
+                        } else if (clickedDateObj < firstClickedDate) {
+                            // If the second clicked date is before the first clicked date, only add the first clicked date
+                            // (This is handled in the first click part, so no action needed here)
+                        }
+                        // After handling the second click, reset firstClickedDate to null to start a new selection sequence
+                        firstClickedDate = null;
+                    }
+                }
+
+                updateCalendarView();
+            });
+
+            function updateSelectedDatesDisplay() {
+                var list = $('#selectedDatesList');
+                list.empty(); // Clear the current list
+
+                selectedDates.sort(); // Sort the dates in chronological order
+
+                selectedDates.forEach(function (date) {
+                    list.append($('<li>').text(date));
+                });
+
+                if (selectedDates.length === 0) {
+                    list.append($('<li>').text('No dates selected.'));
+                }
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#AddNewRateRebate").click(function (e) {
+                e.preventDefault();
+                $("#NewRoomRateRebateSection").toggle();
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#addRoomRateRebateForm").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+                // Clear previous errors
+                $("#roomRebateErrors").empty();
+
+                $.ajax({
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            // Close the modal and add the new room type to the dropdown
+                            $("#NewRoomRateRebateSection").toggle();
+                            // Create new rebate div
+                            var newRebateDiv = $('<div>').addClass('w3-margin-bottom');
+                            var input = $('<input>').attr({
+                                type: 'checkbox',
+                                id: 'Rebate_' + data.roomRateRebateId,
+                                name: 'SelectedRebates',
+                                value: data.roomRateRebateId,
+                                class: 'w3-check'
+                            });
+
+                            var label = $('<label>').attr('for', 'Rebate_' + data.roomRateRebateId).text('Sleva ' + data.rateRebate + '% (minimálně ' + data.minNightStay + ' nocí)');
+
+                            newRebateDiv.append(input).append(label);
+
+                            // Append the new rebate div to the roomRateRebate div
+                            $("#roomRateRebate").append(newRebateDiv);
+                        } else {
+                            // Iterate through the error list and display them
+                            if (data.errors && data.errors.length > 0) {
+                                data.errors.forEach(function (error) {
+                                    $("#roomRebateErrors").append($('<div>').text(error));
+                                });
+                            } else {
+                                // Fallback error message
+                                $("#roomRebateErrors").text(data.message);
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle server errors or unexpected responses here
+                        console.error("Error during form submission:", error);
+                    }
+                });
+            });
+        });
+    </script>
+}

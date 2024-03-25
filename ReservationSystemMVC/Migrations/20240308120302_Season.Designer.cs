@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservationSystemMVC.Data;
 
@@ -11,13 +12,15 @@ using ReservationSystemMVC.Data;
 namespace ReservationSystemMVC.Migrations
 {
     [DbContext(typeof(ReservationSystemMVCContext))]
-    partial class ReservationSystemMVCContextModelSnapshot : ModelSnapshot
+    [Migration("20240308120302_Season")]
+    partial class Season
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -97,10 +100,10 @@ namespace ReservationSystemMVC.Migrations
                     b.Property<int>("NightRate")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RoomId")
+                    b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SeasonId")
+                    b.Property<int?>("SeasonId")
                         .HasColumnType("int");
 
                     b.HasKey("RoomRateId");
@@ -193,7 +196,7 @@ namespace ReservationSystemMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RoomId")
+                    b.Property<int>("RoomId")
                         .HasColumnType("int");
 
                     b.HasKey("SeasonId");
@@ -237,17 +240,15 @@ namespace ReservationSystemMVC.Migrations
                 {
                     b.HasOne("ReservationSystemMVC.Models.Room", "Room")
                         .WithMany("RoomRates")
-                        .HasForeignKey("RoomId");
-
-                    b.HasOne("ReservationSystemMVC.Models.Season", "Season")
-                        .WithMany("RoomRates")
-                        .HasForeignKey("SeasonId")
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Room");
+                    b.HasOne("ReservationSystemMVC.Models.Season", null)
+                        .WithMany("RoomRates")
+                        .HasForeignKey("SeasonId");
 
-                    b.Navigation("Season");
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("ReservationSystemMVC.Models.RoomRateRoomRateRebate", b =>
@@ -292,7 +293,9 @@ namespace ReservationSystemMVC.Migrations
                 {
                     b.HasOne("ReservationSystemMVC.Models.Room", "Room")
                         .WithMany()
-                        .HasForeignKey("RoomId");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Room");
                 });
